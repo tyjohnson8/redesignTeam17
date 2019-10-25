@@ -149,7 +149,7 @@ void setup() {
 
   // Calculate error for each chip
   bodyErrors = calculate_error(BODY);
-  helmErrors = calculate_error(HELMET);
+  // helmErrors = calculate_error(HELMET);
   
 } // END of SETUP
 
@@ -381,13 +381,13 @@ boolean balance(int MPU1Addr, MPU6050 myMPU1, errorVals MPU1errors){
 
   // Re-initialization
   float maxPGyroX, maxPGyroY, maxPGyroZ, maxNGyroX, maxNGyroY, maxNGyroZ = 0.0;   // Used in calculation of Equilibrium score
-  Serial.print("Max P Angle X: "); Serial.println(maxPGyroX);
-  Serial.print("Max N Angle X: "); Serial.println(maxNGyroX);
-  Serial.print("Max P Angle Y: "); Serial.println(maxPGyroY);
-  Serial.print("Max N Angle Y: "); Serial.println(maxNGyroY);
-  Serial.print("Max P Angle Z: "); Serial.println(maxPGyroZ);
-  Serial.print("Max N Angle Z: "); Serial.println(maxNGyroZ);
-
+  Serial.print(maxPGyroX); Serial.print(",");
+  Serial.print(maxNGyroX); Serial.print(",");
+  Serial.print(maxPGyroY); Serial.print(",");
+  Serial.print(maxNGyroY); Serial.print(",");
+  Serial.print(maxPGyroZ); Serial.print(",");
+  Serial.println(maxNGyroZ); 
+  
   float beginTest = millis();
 
   while(millis() - beginTest < 20000){  // Test is 20 seconds long
@@ -408,55 +408,67 @@ boolean balance(int MPU1Addr, MPU6050 myMPU1, errorVals MPU1errors){
     static float firstGyroY = GyroY;
     static float firstGyroZ = GyroZ;
 
+    // Calibration
     GyroX = GyroX - firstGyroX;
     GyroY = GyroY - firstGyroY;
     GyroZ = GyroZ - firstGyroZ;
 
-    // BODY SWAY ///////////////////////
-    // X-Axis
-    if( abs(GyroX - prevGyroX) > abs(MPU1errors.GyroErrorX + errorMargin*MPU1errors.stdGyroX) ){
-      // Currently the raw values are in degrees per seconds, deg/s, so we need to multiply by senconds (s) to get the angle in degrees
-      gyroAngleX = gyroAngleX + (GyroX * elapsedTime) / gyroSens; // deg/s * s = deg
+    if(count % 1000 || count == 1){ // Record every 20 ms or so
+      // BODY SWAY ///////////////////////
+      // X-Axis
+      if( abs(GyroX - prevGyroX) > abs(MPU1errors.GyroErrorX) + errorMargin*MPU1errors.stdGyroX ){
+        // Currently the raw values are in degrees per seconds, deg/s, so we need to multiply by senconds (s) to get the angle in degrees
+        gyroAngleX = gyroAngleX + (GyroX * elapsedTime) / gyroSens; // deg/s * s = deg
+  
+//        // Positive peak
+//        if(gyroAngleX > 0 && gyroAngleX > maxPGyroX) {maxPGyroX = gyroAngleX;}
+//        // Negative Peak
+//        if(gyroAngleX < 0 && gyroAngleX < maxNGyroX) {maxNGyroX = gyroAngleX;}
 
-      // Positive peak
-      if(gyroAngleX > 0 && gyroAngleX > maxPGyroX) {maxPGyroX = gyroAngleX;}
-      // Negative Peak
-      if(gyroAngleX < 0 && gyroAngleX < maxNGyroX) {maxNGyroX = gyroAngleX;}
-
-    }
-    prevGyroX = GyroX;
-
-    // Y-axis
-    if( abs(GyroY - prevGyroY) > abs(MPU1errors.GyroErrorY + errorMargin*MPU1errors.stdGyroY) ){
-      gyroAngleY = gyroAngleY + (GyroY * elapsedTime) / gyroSens;
+        maxPGyroX = max(maxPGyroX, gyroAngleX);
+        maxNGyroX = min(maxNGyroX, gyroAngleX);
+  
+      }
+  
+      // Y-axis
+      if( abs(GyroY - prevGyroY) > abs(MPU1errors.GyroErrorY) + errorMargin*MPU1errors.stdGyroY ){
+        gyroAngleY = gyroAngleY + (GyroY * elapsedTime) / gyroSens;
+        
+  //      if(gyroAngleY > 0 && gyroAngleY > maxPGyroY) {maxPGyroY = gyroAngleY;}
+  //
+  //      if(gyroAngleY < 0 && gyroAngleY < maxNGyroY) {maxNGyroY = gyroAngleY;}
+  
+        maxPGyroY = max(maxPGyroY, gyroAngleY);
+        maxNGyroY = min(maxNGyroY, gyroAngleY);
       
-      if(gyroAngleY > 0 && gyroAngleY > maxPGyroY) {maxPGyroY = gyroAngleY;}
-
-      if(gyroAngleY < 0 && gyroAngleY < maxNGyroY) {maxNGyroY = gyroAngleY;}
-    
-    }
-    prevGyroY = GyroY;
-    
-    // Z-axis
-    if( abs(GyroZ - prevGyroZ) > abs(MPU1errors.GyroErrorZ + errorMargin*MPU1errors.stdGyroZ) ){
-      gyroAngleZ = gyroAngleZ + (GyroZ * elapsedTime) / gyroSens;
+      }
       
-      if(gyroAngleZ > 0 && gyroAngleZ > maxPGyroZ) {maxPGyroZ = gyroAngleZ;}
+      // Z-axis
+      if( abs(GyroZ - prevGyroZ) > abs(MPU1errors.GyroErrorZ) + errorMargin*MPU1errors.stdGyroZ ){
+        gyroAngleZ = gyroAngleZ + (GyroZ * elapsedTime) / gyroSens;
+        
+//        if(gyroAngleZ > 0 && gyroAngleZ > maxPGyroZ) {maxPGyroZ = gyroAngleZ;}
+//  
+//        if(gyroAngleZ < 0 && gyroAngleZ < maxNGyroZ) {maxNGyroZ = gyroAngleZ; }
 
-      if(gyroAngleZ < 0 && gyroAngleZ < maxNGyroZ) {maxNGyroZ = gyroAngleZ; }
+        maxPGyroZ = max(maxPGyroZ, gyroAngleZ);
+        maxNGyroZ = min(maxNGyroZ, gyroAngleZ);
+  
+      }
 
-
-    }
-    prevGyroZ = GyroZ;
-
-    if(count % 1000 || count == 1){
+    
       // Record
+      Serial.print(int(millis() - beginTest)); Serial.print(",");
       Serial.print(gyroAngleX); Serial.print(",");
       Serial.print(gyroAngleY); Serial.print(",");
       Serial.println(gyroAngleZ); 
     }
 
     count++;
+    
+    prevGyroX = GyroX;
+    prevGyroY = GyroY;
+    prevGyroZ = GyroZ;
 
   } // end of Test
 
@@ -604,6 +616,12 @@ errorVals calculate_error(int MPUAddr){
   double stdGyroX = calculate_std(samplesX, GyroErrorX, sizeOfSamples); 
   double stdGyroY = calculate_std(samplesY, GyroErrorY, sizeOfSamples);
   double stdGyroZ = calculate_std(samplesZ, GyroErrorZ, sizeOfSamples);  
+
+  Serial.print(stdGyroX); Serial.print(",");
+  Serial.print(stdGyroY); Serial.print(",");
+  Serial.println(stdGyroZ);
+
+  delay(500);
 
   errorVals resErrors = {
     AccErrorXOrig,
