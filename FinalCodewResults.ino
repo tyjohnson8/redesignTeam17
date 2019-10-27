@@ -348,7 +348,7 @@ boolean hearing(int buttonPinStart, int buzzerPinLeft, int buzzerPinRight, int b
       
     testCount++;
   }
-no
+
   // Recording
   Serial.println(errorCorrectTotal); 
 
