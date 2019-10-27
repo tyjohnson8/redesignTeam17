@@ -46,6 +46,10 @@ len = size(AllData,2);
 add = 0;
 for L = 1:numSub
     
+    if(find( (5+add*11:10+add*11) > len ) )
+        break;
+    end
+        
     myCol(1, 1+add*6:1+add*6+5) = 5+add*11:10+add*11;
     
     add = add + 1;
