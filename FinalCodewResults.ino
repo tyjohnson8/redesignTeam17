@@ -103,7 +103,7 @@ const float alertThreshold = 1.4;   // The number in Gs for which to send an ale
 const int hearingThreshold = 2;     // The number of errors that define a failure of the hearing test
 const float balanceThreshold = 69.0;    // the Equilibrium Score limit that defines a failure of the hearing test
 const float EQ_thresh = 30;
-const int hearing_test_delay = 500;
+const int hearing_test_delay = 5000;
 
 boolean hearing_result; // Store the pass/fails of each test
 boolean balance_result;
@@ -159,7 +159,7 @@ void setup() {
 void loop() {
 
   // Continuously check for impact from HELMET MPU
-  impact(HELMET);
+  // impact(HELMET);
   // If g-force beyond alertThreshold, alert LEDS
   // Standby until either hearing or balance test button is pressed
 
