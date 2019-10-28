@@ -85,7 +85,7 @@ int errorCorrectTotal = 0;    // errorRight + errorLeft
 
 ///////////// ERROR CALCULATION ///////////
 int errorN = 100;         // The number of samples to take to find error
-float errorMargin = 3;    // The number of standard deviations off of the avg error 
+float errorMargin = 2;    // The number of standard deviations off of the avg error 
                           // the reading has to be in order to be considered real
 
 // MPU1
@@ -99,7 +99,7 @@ errorVals helmErrors;
 
 
 ///////////// CONDITIONALS /////////////////
-const float alertThreshold = 1.4;   // The number in Gs for which to send an alert (mTBI risk)
+const float alertThreshold = 16;   // The number in Gs for which to send an alert (mTBI risk)
 const int hearingThreshold = 2;     // The number of errors that define a failure of the hearing test
 const float balanceThreshold = 69.0;    // the Equilibrium Score limit that defines a failure of the hearing test
 const float EQ_thresh = 30;
@@ -162,7 +162,7 @@ void setup() {
 void loop() {
 
   // Continuously check for impact from HELMET MPU
-  // impact(HELMET);
+  impact(HELMET);
   // If g-force beyond alertThreshold, alert LEDS
   // Standby until either hearing or balance test button is pressed
 
